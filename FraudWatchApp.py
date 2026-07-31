@@ -67,7 +67,6 @@ if user_input:
     user_input["merchant"] = user_input["merchant"].apply(
         lambda x: str(x).replace("fraud_", "")
     )
-    st.dataframe(user_input.head())
     # Drop unused text/unique string identifiers to prevent data leakage
     drop_cols = ["trans_num", "first", "last", "street", "city", "state", "zip", "dob"]
     df_clean = user_input.drop(
@@ -84,12 +83,44 @@ if user_input:
         df_clean["hour"] = df_clean["trans_date_trans_time"].dt.hour
         df_clean["day_of_week"] = df_clean["trans_date_trans_time"].dt.dayofweek
         df_clean.drop(columns=["trans_date_trans_time"], inplace=True)
+
     categorical_cols = ["merchant", "category", "gender", "job"]
+
     for col in categorical_cols:
         if col in df_clean.columns:
-            df_clean[col] = label_encoders[col].transform(df_clean[col].astype(str))
-    df_clean = df_clean[feature_names]
-    df_clean = scaler.transform(df_clean)
-    st.dataframe(xgb_model.predict(df_clean))
+            # Convert to string
+            df_clean[col] = df_clean[col].astype(str)
 
-    st.text("Total number of malicious transactions detected: {}".format(xgb_model.predict(df_clean).sum()))
+            # Handle unseen jobs
+            if col == "job":
+                known_jobs = set(label_encoders[col].classes_)
+
+                # If Unknown exists in the encoder, use it
+                if "Unknown" in known_jobs:
+                    df_clean[col] = df_clean[col].apply(
+                        lambda x: x if x in known_jobs else "Unknown"
+                    )
+                else:
+                    # Otherwise map to the first known job to avoid an error
+                    fallback = label_encoders[col].classes_[0]
+                    df_clean[col] = df_clean[col].apply(
+                        lambda x: x if x in known_jobs else fallback
+                    )
+
+            df_clean[col] = label_encoders[col].transform(df_clean[col])
+
+    # Ensure columns are in the same order as training
+    df_clean = df_clean[feature_names]
+
+    # Scale features
+    df_clean = scaler.transform(df_clean)
+
+    # Predict fraud
+    predictions = xgb_model.predict(df_clean)
+
+    # Display fraudulent transactions
+    st.dataframe(user_input[predictions == 1])
+
+    st.text(
+        f"Total number of malicious transactions detected: {predictions.sum()}"
+    )
