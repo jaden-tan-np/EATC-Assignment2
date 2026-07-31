@@ -1,5 +1,6 @@
 [project]
 name = "EATC-Assignment2"
+version = "0.1.0"
 description = "Fraudulent transaction detector"
 readme = "README.md"
 requires-python = ">=3.13"
