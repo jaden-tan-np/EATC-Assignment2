@@ -92,4 +92,4 @@ if user_input:
     df_clean = scaler.transform(df_clean)
     st.dataframe(xgb_model.predict(df_clean))
 
-    st.text("Total number of malicious transactions detected: {}".format(xgb_model.predict(df_clean).sum()))
+    st.text(f"Total number of malicious transactions detected: {xgb_model.predict(df_clean).sum()}")
