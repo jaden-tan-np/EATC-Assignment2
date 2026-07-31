@@ -55,7 +55,11 @@ svc_model, xgb_model, scaler, label_encoders, feature_names = load_artifacts()
 
 # st.text(pred)
 
-user_input = st.file_uploader("Upload transactions here:", type=[".csv"])
+
+st.title("FraudWatch Detection")
+
+
+user_input = st.file_uploader("Upload .csv file of transactions here:", type=[".csv"])
 
 
 if user_input:
@@ -87,3 +91,5 @@ if user_input:
     df_clean = df_clean[feature_names]
     df_clean = scaler.transform(df_clean)
     st.dataframe(xgb_model.predict(df_clean))
+
+    st.text("Total number of malicious transactions detected: {}".format(xgb_model.predict(df_clean).sum()))
