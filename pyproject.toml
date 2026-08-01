@@ -5,6 +5,7 @@ description = "Fraudulent transaction detector"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "category-encoders>=2.10.0",
     "ipykernel>=7.3.0",
     "joblib>=1.5.3",
     "matplotlib>=3.11.1",
