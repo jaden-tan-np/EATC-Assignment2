@@ -182,7 +182,7 @@ if "scan_results" in st.session_state and "feature_cols" in st.session_state:
             severity = row_raw["Severity_Score"]
             
             # Compute SHAP values dynamically on the fly
-            explainer = shap.Explainer(model, df_processed)
+            explainer = shap.TreeExplainer(model, feature_perturbation="tree_path_dependent")
             shap_values = explainer(row_processed)
             
             importance_df = pd.DataFrame(
