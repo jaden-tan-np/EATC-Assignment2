@@ -16,3 +16,5 @@ dependencies = [
     "streamlit>=1.59.2",
     "xgboost>=3.3.0",
 ]
+[tool.poetry]
+package-mode = false
